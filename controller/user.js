@@ -1,4 +1,5 @@
 import User from "../model/user.js";
+import Achievement from "../model/achievement.js";
 import jwt from "jsonwebtoken";     
 import nodemailer from "nodemailer";
 
@@ -9,6 +10,23 @@ const createToken = (id) => {
     expiresIn: maxAge,
   });
 };
+
+const defaultListOfAchievements = [
+  Achievement({ count: 10, type: "step", countType: "K", isAchieved: false }),
+  Achievement({ count: 20, type: "step", countType: "K", isAchieved: false }),
+  Achievement({ count: 30, type: "step", countType: "K", isAchieved: false }),
+  Achievement({ count: 50, type: "step", countType: "K", isAchieved: false }),
+  Achievement({ count: 100, type: "step", countType: "K", isAchieved: false }),
+  Achievement({ count: 500, type: "step", countType: "K", isAchieved: false }),
+  Achievement({ count: 1, type: "step", countType: "MIl", isAchieved: false }),
+
+  Achievement({ count: 5, type: "distance", countType: "Km", isAchieved: false }),
+  Achievement({ count: 10, type: "distance", countType: "Km", isAchieved: false }),
+  Achievement({ count: 20, type: "distance", countType: "Km", isAchieved: false }),
+  Achievement({ count: 50, type: "distance", countType: "Km", isAchieved: false }),
+  Achievement({ count: 100, type: "distance", countType: "Km", isAchieved: false }),
+
+]
 
 let transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
@@ -25,7 +43,7 @@ export const register = async (req, res) => {
   username = username.toLowerCase();
   email = email.toLowerCase();
   try {
-    const user = await User.create({ username, email, password });
+    const user = await User.create({ username, email, password, achievements: defaultListOfAchievements });
     const token = createToken(user._id);
 
     res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
@@ -149,6 +167,7 @@ export const googleAuth = async (req, res) => {
       const newUser = await User.create({
         email: email,
         username: displayName,
+        achievements: defaultListOfAchievements,
       });
       const token = createToken(newUser._id);
       res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
@@ -162,7 +181,6 @@ export const googleAuth = async (req, res) => {
 export const setPassword = async (req, res) => {
   let { password } = req.body;
   const user = req.user;
-  console.log(user);
   try {
     user.password = password;
     await user.save();
@@ -283,4 +301,29 @@ export const hideLocation = async (req, res) => {
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-}
+};
+
+export const updateAchievements = async (req, res) => {
+  const user = req.user;
+  const userAchievements = user.achievements;
+  const toUpdateString = req.body.achievements;
+  const toUpdate = JSON.parse(toUpdateString);
+
+  try {
+    for (let i = 0; i < toUpdate.length; i++) {
+      for(let j = 0; j < userAchievements.length; j++){
+        if(toUpdate[i].count == userAchievements[j].count && toUpdate[i].countType == userAchievements[j].countType){
+          userAchievements[j].isAchieved = true;
+        }
+      }
+    }
+
+    user.achievements = userAchievements;
+    await User.updateOne({ _id: user._id }, { $set: { achievements: userAchievements } });
+    res.status(200).json(user);
+  }
+  catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+
+};

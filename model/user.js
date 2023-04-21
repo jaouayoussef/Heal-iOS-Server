@@ -55,6 +55,10 @@ const userSchema = new mongoose.Schema({
         type: Number,
         required:false,
     },
+    achievements: {
+        type: Array,
+        required: false,
+    },
 });
 
 const User = mongoose.model('user', userSchema);

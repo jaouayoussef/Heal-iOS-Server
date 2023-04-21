@@ -1,48 +1,36 @@
 
-# Heal Backend Server
-
-This is the official backend server for Heal Mobile App
+![Logo](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/th5xamgrr6se0x5ro4g6.png)
 
 
-## Deployment
+# Heal iOS App
 
-To run this project run :
-
-Install packages : 
-```bash
-  npm install
-```
-Run in production mode :
-```bash
-  npm run start
-```
+Heal iOS App : mobile app that helps users track their daily activities like steps, burnt calories, distance, keep up with other users located around them and earn rewards
 
 
-## API Reference
+## Screenshots
 
-#### Create an account
+![App Screenshot](https://github.com/louayyy99/Heal-Ios/blob/main/screenshots/home.png)
+![App Screenshot](https://github.com/louayyy99/Heal-Ios/blob/main/screenshots/map.png)
+![App Screenshot](https://github.com/louayyy99/Heal-Ios/blob/main/screenshots/graph.png)
+![App Screenshot](https://github.com/louayyy99/Heal-Ios/blob/main/screenshots/profile1.png)
+![App Screenshot](https://github.com/louayyy99/Heal-Ios/blob/main/screenshots/profile2.png)
 
-```http
-  POST /user/register
-```
 
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `email` | `string` | **Required** |
-| `username` | `string` | **Required** |
-| `password` | `string` | **Required** |
 
-#### Login to your account
+## Requirements
 
-```http
-  POST /user/login/
-```
+- macOS Ventura
+- Swift 5+
+- XCode 11+
 
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `username`| `string` | **Required**|
-| `password`| `string` | **Required** |
 
+
+## Features
+
+- Firebase authentication
+- HealthKit implementation
+- MapKit
+- Rewards & achievements
 
 
 ## Authors
@@ -51,7 +39,12 @@ Run in production mode :
 - [@jaouayoussef](https://www.github.com/jaouayoussef)
 
 
+## Support
+
+For support, email heal.client.assistant@gmail.com
+
 
 ## Feedback
 
 If you have any feedback, please reach out to us at heal.client.assistant@gmail.com
+

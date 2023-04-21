@@ -14,7 +14,8 @@ import {
   updateUsername,
   addGoals,
   addHealth,
-  hideLocation
+  hideLocation,
+  updateAchievements
 } from "../controller/user.js";
 import { requireAuth } from "../middleware/auth.js";
 
@@ -35,5 +36,6 @@ router.post("/updateUsername", requireAuth,updateUsername);
 router.post("/addGoals", requireAuth,addGoals);
 router.post("/addHealth", requireAuth,addHealth);
 router.post("/hideLocation", requireAuth,hideLocation);
+router.post("/updateAchievements", requireAuth,updateAchievements);
 
 export default router;
