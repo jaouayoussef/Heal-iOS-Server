@@ -1,5 +1,6 @@
 import User from "../model/user.js";
 import Achievement from "../model/achievement.js";
+import Post from "../model/post.js";
 import jwt from "jsonwebtoken";     
 import nodemailer from "nodemailer";
 
@@ -314,6 +315,45 @@ export const updateAchievements = async (req, res) => {
   try {
     const updatedUser = await User.findByIdAndUpdate(user._id, { achievements: updatedAchievements }, { new: true });
     res.status(200).json(updatedUser);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+export const addPost = async (req, res) => {
+  const user = req.user;
+  let { post } = req.body;
+  try {
+    user.posts.push(post);
+    await user.save();
+    const current = Post.create({
+      post: post
+    });
+    await current.save();
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+export const deletePost = async (req, res) => {
+  const user = req.user;
+  let { post } = req.body;
+  try {
+    user.posts = user.posts.filter(p => p !== post);
+    await user.save();
+    const current = Post.findByIdAndDelete(post._id);
+    await current.save();
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+export const getAllPosts = async (req, res) => {
+  try {
+    const posts = await Post.find();
+    res.status(200).json(posts);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }

@@ -15,7 +15,10 @@ import {
   addGoals,
   addHealth,
   hideLocation,
-  updateAchievements
+  updateAchievements,
+  addPost,
+  deletePost,
+  getAllPosts
 } from "../controller/user.js";
 import { requireAuth } from "../middleware/auth.js";
 
@@ -29,13 +32,19 @@ router.post("/resetPassword", resetPassword);
 router.get("/getUser", requireAuth, getUser);
 router.post("/googleAuth", googleAuth);
 router.post("/setPassword", requireAuth,setPassword);
-router.post("/setUserLocation", requireAuth,setUserLocation);
-router.get("/findNearbyUsers", requireAuth,findNearbyUsers);
 router.post("/updatePassword", requireAuth,updatePassword);
 router.post("/updateUsername", requireAuth,updateUsername);
+
+router.post("/setUserLocation", requireAuth,setUserLocation);
+router.get("/findNearbyUsers", requireAuth,findNearbyUsers);
+router.post("/hideLocation", requireAuth,hideLocation);
+
 router.post("/addGoals", requireAuth,addGoals);
 router.post("/addHealth", requireAuth,addHealth);
-router.post("/hideLocation", requireAuth,hideLocation);
 router.post("/updateAchievements", requireAuth,updateAchievements);
+
+router.post("/addPost", requireAuth,addPost);
+router.post("/deletePost", requireAuth,deletePost);
+router.get("/getAllPosts", requireAuth,getAllPosts);
 
 export default router;
