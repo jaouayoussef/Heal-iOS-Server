@@ -20,11 +20,7 @@ const postSchema = new mongoose.Schema({
     countType:{
         type: String,
         required: true,
-    },
-    text:{
-        type: String,
-        required: true,
-    },
+    }
 });
 
 const Post = mongoose.model('post', postSchema);
