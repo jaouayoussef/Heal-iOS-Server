@@ -305,25 +305,17 @@ export const hideLocation = async (req, res) => {
 
 export const updateAchievements = async (req, res) => {
   const user = req.user;
-  const userAchievements = user.achievements;
-  const toUpdateString = req.body.achievements;
-  const toUpdate = JSON.parse(toUpdateString);
+  const toUpdate = JSON.parse(req.body.achievements);
+  const updatedAchievements = user.achievements.map(achievement => {
+    const matchingAchievement = toUpdate.find(a => a.count === achievement.count && a.countType === achievement.countType);
+    return matchingAchievement ? {...achievement, isAchieved: true} : achievement;
+  });
 
   try {
-    for (let i = 0; i < toUpdate.length; i++) {
-      for(let j = 0; j < userAchievements.length; j++){
-        if(toUpdate[i].count == userAchievements[j].count && toUpdate[i].countType == userAchievements[j].countType){
-          userAchievements[j].isAchieved = true;
-        }
-      }
-    }
-
-    user.achievements = userAchievements;
-    await User.updateOne({ _id: user._id }, { $set: { achievements: userAchievements } });
-    res.status(200).json(user);
-  }
-  catch (err) {
+    const updatedUser = await User.findByIdAndUpdate(user._id, { achievements: updatedAchievements }, { new: true });
+    res.status(200).json(updatedUser);
+  } catch (err) {
     res.status(400).json({ message: err.message });
   }
-
 };
+
