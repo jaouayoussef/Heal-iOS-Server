@@ -363,7 +363,8 @@ export const deletePost = async (req, res) => {
 
 export const getAllPosts = async (req, res) => {
   try {
-    const posts = await Post.find();
+    //get posts ordered by date
+    const posts = await Post.find().sort({date: -1});
     res.status(200).json(posts);
   } catch (err) {
     res.status(400).json({ message: err.message });
