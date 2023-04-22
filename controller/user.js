@@ -322,16 +322,27 @@ export const updateAchievements = async (req, res) => {
 
 export const addPost = async (req, res) => {
   const user = req.user;
-  let { post } = req.body;
+
+  const username = req.body.username;
+  const type = req.body.type;
+  const count = req.body.count;
+  const countType = req.body.countType;
+  const currentDate = Date.now();
+
   try {
-    user.posts.push(post);
-    await user.save();
-    const current = Post.create({
-      post: post
+    const current = await Post.create({
+      username:username,
+      type:type,
+      count:count,
+      countType:countType,
+      date:currentDate
     });
-    await current.save();
+    
+    user.posts.push(current);
+    await user.save();
     res.status(200).json(user);
   } catch (err) {
+    console.log(err.message)
     res.status(400).json({ message: err.message });
   }
 };
@@ -358,4 +369,3 @@ export const getAllPosts = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
-
