@@ -45,6 +45,6 @@ router.post("/updateAchievements", requireAuth,updateAchievements);
 
 router.post("/addPost", requireAuth,addPost);
 router.post("/deletePost", requireAuth,deletePost);
-router.get("/getAllPosts", requireAuth,getAllPosts);
+router.get("/getAllPosts",getAllPosts);
 
 export default router;
