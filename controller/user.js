@@ -349,12 +349,11 @@ export const addPost = async (req, res) => {
 
 export const deletePost = async (req, res) => {
   const user = req.user;
-  let { post } = req.body;
+  let id = req.body.id;
   try {
-    user.posts = user.posts.filter(p => p !== post);
+    user.posts = user.posts.filter((post) => post._id != id);
     await user.save();
-    const current = Post.findByIdAndDelete(post._id);
-    await current.save();
+    await Post.findByIdAndDelete(id);
     res.status(200).json(user);
   } catch (err) {
     res.status(400).json({ message: err.message });
