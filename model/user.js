@@ -19,6 +19,10 @@ const userSchema = new mongoose.Schema({
     resetCode: {
         type: Number
     },
+    online: {
+        type: Boolean,
+        default: false,
+    },
     hideLocation: {
         type: Boolean,
         default: false,

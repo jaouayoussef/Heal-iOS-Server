@@ -3,10 +3,17 @@ import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import cors from 'cors';
+import { createServer } from "http";
+import { Server } from "socket.io";
+
+import { validateJWT } from './middleware/auth.js';
+import { userConnected,userDisconnected,saveMessage } from './controller/user.js';
 
 import userRouter from './route/user.js';
 
 const app = express();
+const server = createServer(app);
+const io = new Server(server);
 const port = process.env.PORT || 1337;
 const databaseName = "HealDB";
 const dbURIOffline = `mongodb://0.0.0.0:27017/${databaseName}`;
@@ -35,7 +42,31 @@ app.get('/', (req, res) => {
 
 app.use('/user', userRouter);
 
-app.listen(port, () => {
+io.on("connection", async (client) => {
+    const [valid, uid] = await validateJWT(client.handshake.headers['jwt']);
+    if (!valid) {
+        return client.disconnect();
+    }
+
+    userConnected(uid);
+
+    client.join(uid);
+
+    client.on("private-message", async (payload) => {
+        await saveMessage(payload);
+        io.to(payload.to).emit("private-message", payload);
+    });
+
+    client.on("is-typing", (payload) => {
+        io.to(payload.to).emit("is-typing", payload);
+    });
+
+    client.on("disconnect", () => {
+        userDisconnected(uid);
+    });
+});
+
+server.listen(port, () => {
     console.log(`Server running at http://localhost:${port}/`);
 });
 
