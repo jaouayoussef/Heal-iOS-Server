@@ -1,5 +1,6 @@
 import User from "../model/user.js";
 import Achievement from "../model/achievement.js";
+import Message from "../model/message.js";
 import Post from "../model/post.js";
 import jwt from "jsonwebtoken";     
 import nodemailer from "nodemailer";
@@ -367,4 +368,55 @@ export const getAllPosts = async (req, res) => {
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
+};
+
+export const getAllUsers = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const users = await User.find({_id: {$ne: userId}});
+    res.status(200).json(users);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+export const getMessages = async (req, res) => {
+    try {
+        const username = req.user.username;
+        const messagesFrom = req.query.from;
+
+        const last30 = await Message.find({
+            $or: [{from: username, to: messagesFrom}, {from: messagesFrom, to: username},],
+        })
+            .sort({createdAt: "desc"})
+            .limit(30);
+
+        res.status(200).json(last30);
+    } catch (error) {
+        res.status(404).json(error.message);
+    }
+};
+
+export const userConnected = async (uid = '') => {
+    const user = await User.findById(uid);
+    user.online = true;
+    await user.save();
+    return user;
+};
+
+export const userDisconnected = async (uid = "") => {
+    const user = await User.findById(uid);
+    user.online = false;
+    user.lastSeen =  Date.now();
+    await user.save();
+    return user;
+};
+
+export const saveMessage = async (payload) => {
+    try {
+        const message = new Message(payload);
+        await message.save();
+    } catch (error) {
+        return false;
+    }
 };

@@ -18,7 +18,9 @@ import {
   updateAchievements,
   addPost,
   deletePost,
-  getAllPosts
+  getAllPosts,
+  getAllUsers,
+  getMessages
 } from "../controller/user.js";
 import { requireAuth } from "../middleware/auth.js";
 
@@ -46,5 +48,8 @@ router.post("/updateAchievements", requireAuth,updateAchievements);
 router.post("/addPost", requireAuth,addPost);
 router.post("/deletePost", requireAuth,deletePost);
 router.get("/getAllPosts",getAllPosts);
+
+router.get("/getAllUsers",getAllUsers);
+router.get("/getMessages",requireAuth,getMessages);
 
 export default router;
