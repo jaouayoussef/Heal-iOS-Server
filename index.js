@@ -1,15 +1,19 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import cookieParser from 'cookie-parser';
-import morgan from 'morgan';
-import cors from 'cors';
+import express from "express";
+import mongoose from "mongoose";
+import cookieParser from "cookie-parser";
+import morgan from "morgan";
+import cors from "cors";
 import { createServer } from "http";
 import { Server } from "socket.io";
 
-import { validateJWT } from './middleware/auth.js';
-import { userConnected,userDisconnected,saveMessage } from './controller/user.js';
+import { validateJWT } from "./middleware/auth.js";
+import {
+  userConnected,
+  userDisconnected,
+  saveMessage,
+} from "./controller/user.js";
 
-import userRouter from './route/user.js';
+import userRouter from "./route/user.js";
 
 const app = express();
 const server = createServer(app);
@@ -21,52 +25,50 @@ const dbURIOffline = `mongodb://0.0.0.0:27017/${databaseName}`;
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors());
-app.use(morgan('dev'));
-app.use('/img', express.static('public/images'));
+app.use(morgan("dev"));
+app.use("/img", express.static("public/images"));
 
 mongoose.set("debug", true);
 mongoose.Promise = global.Promise;
 
-mongoose.connect(dbURIOffline, {
+mongoose
+  .connect(dbURIOffline, {
     useNewUrlParser: true,
-    useUnifiedTopology: true
-}).then(() => {
+    useUnifiedTopology: true,
+  })
+  .then(() => {
     console.log(`Connected to ${databaseName}`);
-}).catch((err) => {
+  })
+  .catch((err) => {
     console.log(err.message);
+  });
+
+app.get("/", (req, res) => {
+  res.send({ message: "Default route" });
 });
 
-app.get('/', (req, res) => {
-    res.send({message: 'Default route'});
-});
-
-app.use('/user', userRouter);
+app.use("/user", userRouter);
 
 io.on("connection", async (client) => {
-    const [valid, uid] = await validateJWT(client.handshake.headers['jwt']);
-    if (!valid) {
-        return client.disconnect();
-    }
+  let token = client.handshake.auth.token;
+  const [valid, uid,username] = await validateJWT(token);
+  if (!valid) {
+    return client.disconnect();
+  }
 
-    userConnected(uid);
+  userConnected(uid);
+  client.join(username);
 
-    client.join(uid);
+  client.on("private-message", async (payload) => {
+    await saveMessage(payload);
+    io.to(payload.to).emit("private-message", payload);
+  });
 
-    client.on("private-message", async (payload) => {
-        await saveMessage(payload);
-        io.to(payload.to).emit("private-message", payload);
-    });
-
-    client.on("is-typing", (payload) => {
-        io.to(payload.to).emit("is-typing", payload);
-    });
-
-    client.on("disconnect", () => {
-        userDisconnected(uid);
-    });
+  client.on("disconnect", () => {
+    userDisconnected(uid);
+  });
 });
 
 server.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}/`);
+  console.log(`Server running at http://localhost:${port}/`);
 });
-

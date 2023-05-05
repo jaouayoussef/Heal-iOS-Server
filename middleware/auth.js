@@ -25,7 +25,8 @@ const requireAuth = (req, res, next) => {
 export const validateJWT = async (token = "") => {
     try {
         const {id: uid} = jwt.verify(token, 'heal secret key');
-        return [true, uid];
+        const user = await User.findById(uid);
+        return [true, uid,user.username];
     } catch (error) {
         return [false, null];
     }

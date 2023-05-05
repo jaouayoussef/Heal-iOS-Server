@@ -49,7 +49,7 @@ router.post("/addPost", requireAuth,addPost);
 router.post("/deletePost", requireAuth,deletePost);
 router.get("/getAllPosts",getAllPosts);
 
-router.get("/getAllUsers",getAllUsers);
+router.get("/getAllUsers",requireAuth,getAllUsers);
 router.get("/getMessages",requireAuth,getMessages);
 
 export default router;

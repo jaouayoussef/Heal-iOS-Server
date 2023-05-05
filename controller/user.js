@@ -376,6 +376,7 @@ export const getAllUsers = async (req, res) => {
     const users = await User.find({_id: {$ne: userId}});
     res.status(200).json(users);
   } catch (err) {
+    console.log(err.message)
     res.status(400).json({ message: err.message });
   }
 };
@@ -417,6 +418,7 @@ export const saveMessage = async (payload) => {
         const message = new Message(payload);
         await message.save();
     } catch (error) {
+      console.log(error.message);
         return false;
     }
 };
