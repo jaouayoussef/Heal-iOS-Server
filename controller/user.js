@@ -384,12 +384,12 @@ export const getAllUsers = async (req, res) => {
 export const getMessages = async (req, res) => {
     try {
         const username = req.user.username;
-        const messagesFrom = req.query.from;
+        const messagesFrom = req.query.dest;
 
         const last30 = await Message.find({
             $or: [{from: username, to: messagesFrom}, {from: messagesFrom, to: username},],
         })
-            .sort({createdAt: "desc"})
+            .sort({createdAt: "asc"})
             .limit(30);
 
         res.status(200).json(last30);
