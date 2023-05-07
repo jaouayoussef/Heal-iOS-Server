@@ -8,7 +8,7 @@ const MIME_TYPES = {
     "image/png": "png",
 };
 
-export default function (image, size) {
+export default function upload(image, size) {
     return multer({
 
         storage: diskStorage({

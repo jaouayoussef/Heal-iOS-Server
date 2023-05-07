@@ -2,7 +2,7 @@ import User from "../model/user.js";
 import Achievement from "../model/achievement.js";
 import Message from "../model/message.js";
 import Post from "../model/post.js";
-import jwt from "jsonwebtoken";     
+import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 
 const maxAge = 3 * 24 * 60 * 60;
@@ -22,13 +22,37 @@ const defaultListOfAchievements = [
   Achievement({ count: 500, type: "step", countType: "K", isAchieved: false }),
   Achievement({ count: 1, type: "step", countType: "MIl", isAchieved: false }),
 
-  Achievement({ count: 5, type: "distance", countType: "Km", isAchieved: false }),
-  Achievement({ count: 10, type: "distance", countType: "Km", isAchieved: false }),
-  Achievement({ count: 20, type: "distance", countType: "Km", isAchieved: false }),
-  Achievement({ count: 50, type: "distance", countType: "Km", isAchieved: false }),
-  Achievement({ count: 100, type: "distance", countType: "Km", isAchieved: false }),
-
-]
+  Achievement({
+    count: 5,
+    type: "distance",
+    countType: "Km",
+    isAchieved: false,
+  }),
+  Achievement({
+    count: 10,
+    type: "distance",
+    countType: "Km",
+    isAchieved: false,
+  }),
+  Achievement({
+    count: 20,
+    type: "distance",
+    countType: "Km",
+    isAchieved: false,
+  }),
+  Achievement({
+    count: 50,
+    type: "distance",
+    countType: "Km",
+    isAchieved: false,
+  }),
+  Achievement({
+    count: 100,
+    type: "distance",
+    countType: "Km",
+    isAchieved: false,
+  }),
+];
 
 let transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
@@ -45,11 +69,21 @@ export const register = async (req, res) => {
   username = username.toLowerCase();
   email = email.toLowerCase();
   try {
-    const user = await User.create({ username, email, password, achievements: defaultListOfAchievements });
+    let userFields = {
+      username,
+      email,
+      password,
+      achievements: defaultListOfAchievements,
+    };
+
+    if (req.file) {
+      userFields.image = req.file.filename;
+    }
+    const user = await User.create(userFields);
     const token = createToken(user._id);
 
     res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
-    res.status(200).json({token, ...user._doc});
+    res.status(200).json({ token, ...user._doc });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
@@ -186,7 +220,7 @@ export const setPassword = async (req, res) => {
   try {
     user.password = password;
     await user.save();
-    res.status(200).json({user});
+    res.status(200).json({ user });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
@@ -199,7 +233,7 @@ export const logout = (req, res) => {
 
 export const setUserLocation = async (req, res) => {
   const user = req.user;
-  let { longitude,latitude } = req.body;
+  let { longitude, latitude } = req.body;
   try {
     user.longitude = longitude;
     user.latitude = latitude;
@@ -248,8 +282,7 @@ export const updateUsername = async (req, res) => {
     const foundUser = await User.findOne({ username });
     if (foundUser) {
       res.status(400).json({ message: "Username already exists" });
-    }
-    else{
+    } else {
       user.username = username;
       await user.save();
       res.status(200).json(user);
@@ -257,7 +290,7 @@ export const updateUsername = async (req, res) => {
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-}
+};
 
 export const addGoals = async (req, res) => {
   const user = req.user;
@@ -275,15 +308,14 @@ export const addGoals = async (req, res) => {
 
 export const addHealth = async (req, res) => {
   const user = req.user;
-  let {age, weight, length } = req.body;
+  let { age, weight, length } = req.body;
   try {
     user.age = age;
     user.weight = weight;
     user.length = length;
     await user.save();
     res.status(200).json(user);
-  }
-  catch (err) {
+  } catch (err) {
     res.status(400).json({ message: err.message });
   }
 };
@@ -291,11 +323,11 @@ export const addHealth = async (req, res) => {
 export const hideLocation = async (req, res) => {
   const user = req.user;
   try {
-    if(user.hideLocation == true){
+    if (user.hideLocation == true) {
       user.hideLocation = false;
       await user.save();
       res.status(200).json(user);
-    }else{
+    } else {
       user.hideLocation = true;
       await user.save();
       res.status(200).json(user);
@@ -308,13 +340,22 @@ export const hideLocation = async (req, res) => {
 export const updateAchievements = async (req, res) => {
   const user = req.user;
   const toUpdate = JSON.parse(req.body.achievements);
-  const updatedAchievements = user.achievements.map(achievement => {
-    const matchingAchievement = toUpdate.find(a => a.count === achievement.count && a.countType === achievement.countType);
-    return matchingAchievement ? {...achievement, isAchieved: true} : achievement;
+  const updatedAchievements = user.achievements.map((achievement) => {
+    const matchingAchievement = toUpdate.find(
+      (a) =>
+        a.count === achievement.count && a.countType === achievement.countType
+    );
+    return matchingAchievement
+      ? { ...achievement, isAchieved: true }
+      : achievement;
   });
 
   try {
-    const updatedUser = await User.findByIdAndUpdate(user._id, { achievements: updatedAchievements }, { new: true });
+    const updatedUser = await User.findByIdAndUpdate(
+      user._id,
+      { achievements: updatedAchievements },
+      { new: true }
+    );
     res.status(200).json(updatedUser);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -332,18 +373,18 @@ export const addPost = async (req, res) => {
 
   try {
     const current = await Post.create({
-      username:username,
-      type:type,
-      count:count,
-      countType:countType,
-      date:currentDate
+      username: username,
+      type: type,
+      count: count,
+      countType: countType,
+      date: currentDate,
     });
-    
+
     user.posts.push(current);
     await user.save();
     res.status(200).json(user);
   } catch (err) {
-    console.log(err.message)
+    console.log(err.message);
     res.status(400).json({ message: err.message });
   }
 };
@@ -363,7 +404,7 @@ export const deletePost = async (req, res) => {
 
 export const getAllPosts = async (req, res) => {
   try {
-    const posts = await Post.find().sort({date: -1});
+    const posts = await Post.find().sort({ date: -1 });
     res.status(200).json(posts);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -373,52 +414,55 @@ export const getAllPosts = async (req, res) => {
 export const getAllUsers = async (req, res) => {
   try {
     const userId = req.user._id;
-    const users = await User.find({_id: {$ne: userId}});
+    const users = await User.find({ _id: { $ne: userId } });
     res.status(200).json(users);
   } catch (err) {
-    console.log(err.message)
+    console.log(err.message);
     res.status(400).json({ message: err.message });
   }
 };
 
 export const getMessages = async (req, res) => {
-    try {
-        const username = req.user.username;
-        const messagesFrom = req.query.dest;
+  try {
+    const username = req.user.username;
+    const messagesFrom = req.query.dest;
 
-        const last30 = await Message.find({
-            $or: [{from: username, to: messagesFrom}, {from: messagesFrom, to: username},],
-        })
-            .sort({createdAt: "asc"})
-            .limit(30);
+    const last30 = await Message.find({
+      $or: [
+        { from: username, to: messagesFrom },
+        { from: messagesFrom, to: username },
+      ],
+    })
+      .sort({ createdAt: "asc" })
+      .limit(30);
 
-        res.status(200).json(last30);
-    } catch (error) {
-        res.status(404).json(error.message);
-    }
+    res.status(200).json(last30);
+  } catch (error) {
+    res.status(404).json(error.message);
+  }
 };
 
-export const userConnected = async (uid = '') => {
-    const user = await User.findById(uid);
-    user.online = true;
-    await user.save();
-    return user;
+export const userConnected = async (uid = "") => {
+  const user = await User.findById(uid);
+  user.online = true;
+  await user.save();
+  return user;
 };
 
 export const userDisconnected = async (uid = "") => {
-    const user = await User.findById(uid);
-    user.online = false;
-    user.lastSeen =  Date.now();
-    await user.save();
-    return user;
+  const user = await User.findById(uid);
+  user.online = false;
+  user.lastSeen = Date.now();
+  await user.save();
+  return user;
 };
 
 export const saveMessage = async (payload) => {
-    try {
-        const message = new Message(payload);
-        await message.save();
-    } catch (error) {
-      console.log(error.message);
-        return false;
-    }
+  try {
+    const message = new Message(payload);
+    await message.save();
+  } catch (error) {
+    console.log(error.message);
+    return false;
+  }
 };
