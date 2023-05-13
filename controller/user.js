@@ -221,7 +221,6 @@ export const setPassword = async (req, res) => {
   const user = req.user;
   try {
     user.password = password;
-    console.log(user)
     await user.save();
     res.status(200).json({ token, ...user });
   } catch (err) {
@@ -387,7 +386,6 @@ export const addPost = async (req, res) => {
     await user.save();
     res.status(200).json(user);
   } catch (err) {
-    console.log(err.message);
     res.status(400).json({ message: err.message });
   }
 };
@@ -479,7 +477,7 @@ export const saveMessage = async (payload) => {
     const message = new Message(payload);
     await message.save();
   } catch (error) {
-    console.log(error.message);
+
     return false;
   }
 };
