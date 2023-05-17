@@ -1,32 +1,48 @@
-# Heal iOS App
 
-Heal iOS App : mobile app that helps users track their daily activities like steps, burnt calories, distance, keep up with other users located around them and earn rewards
+# Heal Backend Server
 
-
-## Screenshots
-
-![App Screenshot](https://github.com/louayyy99/Heal-Ios/blob/main/screenshots/home.png)
-![App Screenshot](https://github.com/louayyy99/Heal-Ios/blob/main/screenshots/map.png)
-![App Screenshot](https://github.com/louayyy99/Heal-Ios/blob/main/screenshots/graph.png)
-![App Screenshot](https://github.com/louayyy99/Heal-Ios/blob/main/screenshots/profile1.png)
-![App Screenshot](https://github.com/louayyy99/Heal-Ios/blob/main/screenshots/profile2.png)
+This is the official backend server for Heal Mobile App
 
 
+## Deployment
 
-## Requirements
+To run this project run :
 
-- macOS Ventura
-- Swift 5+
-- XCode 11+
+Install packages : 
+```bash
+  npm install
+```
+Run in production mode :
+```bash
+  npm run start
+```
 
 
+## API Reference
 
-## Features
+#### Create an account
 
-- Firebase authentication
-- HealthKit implementation
-- MapKit
-- Rewards & achievements
+```http
+  POST /user/register
+```
+
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `email` | `string` | **Required** |
+| `username` | `string` | **Required** |
+| `password` | `string` | **Required** |
+
+#### Login to your account
+
+```http
+  POST /user/login/
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `username`| `string` | **Required**|
+| `password`| `string` | **Required** |
+
 
 
 ## Authors
@@ -35,12 +51,7 @@ Heal iOS App : mobile app that helps users track their daily activities like ste
 - [@jaouayoussef](https://www.github.com/jaouayoussef)
 
 
-## Support
-
-For support, email heal.client.assistant@gmail.com
-
 
 ## Feedback
 
 If you have any feedback, please reach out to us at heal.client.assistant@gmail.com
-
