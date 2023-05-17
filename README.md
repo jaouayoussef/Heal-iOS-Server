@@ -35,7 +35,7 @@ Run in production mode :
 #### Login to your account
 
 ```http
-  POST /user/login/
+  POST /user/login
 ```
 
 | Parameter | Type     | Description                       |
