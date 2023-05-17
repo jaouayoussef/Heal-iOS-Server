@@ -368,6 +368,7 @@ export const addPost = async (req, res) => {
   const user = req.user;
 
   const username = req.body.username;
+  const image = req.body.image;
   const type = req.body.type;
   const count = req.body.count;
   const countType = req.body.countType;
@@ -376,6 +377,7 @@ export const addPost = async (req, res) => {
   try {
     const current = await Post.create({
       username: username,
+      image: image,
       type: type,
       count: count,
       countType: countType,
