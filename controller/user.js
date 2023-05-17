@@ -6,6 +6,8 @@ import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 import bcrypt from "bcryptjs";
 
+import emailTemplate from "../utils/temp.js";
+
 const maxAge = 3 * 24 * 60 * 60;
 
 const createToken = (id) => {
@@ -126,7 +128,7 @@ export const sendResetPasswordEmail = async (req, res) => {
         to: email,
         subject: "Password Reset Request",
         text: `Your password reset code is ${resetCode}`,
-        html: `<p>Your password reset code is <strong>${resetCode}</strong></p>`,
+        html: emailTemplate(resetCode),
       };
       transporter.sendMail(mailOptions, async (err, info) => {
         if (err) {

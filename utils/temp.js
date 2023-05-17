@@ -166,7 +166,7 @@ const emailTemplate = (code) => {
 																		style="outline:none" tabindex="-1"
 																		target="_blank"><img
 																			class="big"
-																			src="images/___passwordreset.gif"
+																			src="https://raw.githubusercontent.com/louayyy99/Heal-iOS-Server/main/utils/passwordreset.gif"
 																			style="display: block; height: auto; border: 0; width: 640px; max-width: 100%;"
 																			title="Image of lock & key."
 																			width="640" /></a></div>
@@ -370,3 +370,5 @@ const emailTemplate = (code) => {
 </html>
     `;
 };
+
+export default emailTemplate;
