@@ -4,6 +4,7 @@ import Message from "../model/message.js";
 import Post from "../model/post.js";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
+import bcrypt from "bcryptjs";
 
 const maxAge = 3 * 24 * 60 * 60;
 
@@ -68,11 +69,13 @@ export const register = async (req, res) => {
   let { username, email, password } = req.body;
   username = username.toLowerCase();
   email = email.toLowerCase();
+  const salt = bcrypt.genSaltSync(10);
+  const hashPassword = bcrypt.hashSync(password, salt);
   try {
     let userFields = {
       username,
       email,
-      password,
+      password: hashPassword,
       achievements: defaultListOfAchievements,
     };
 
@@ -95,7 +98,8 @@ export const login = async (req, res) => {
   try {
     const user = await User.findOne({ email });
     if (user) {
-      if (password == user.password) {
+      const auth = bcrypt.compare(password, user.password);
+      if (auth) {
         const token = createToken(user._id);
         res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
         res.status(200).json({ token, ...user._doc });
@@ -162,10 +166,12 @@ export const checkResetCode = async (req, res) => {
 export const resetPassword = async (req, res) => {
   let { email, password } = req.body;
   email = email.toLowerCase();
+  const salt = bcrypt.genSaltSync(10);
+  const hashPassword = bcrypt.hashSync(password, salt);
   try {
     const user = await User.findOne({ email });
     if (user) {
-      user.password = password;
+      user.password = hashPassword;
       user.resetCode = null;
       await user.save();
       res.status(200).json(true);
@@ -183,7 +189,7 @@ export const getUser = async (req, res) => {
 };
 
 export const googleAuth = async (req, res) => {
-  let { email, displayName,avatar } = req.body;
+  let { email, displayName, avatar } = req.body;
 
   displayName = displayName.split(" ");
   displayName =
@@ -217,10 +223,12 @@ export const googleAuth = async (req, res) => {
 
 export const setPassword = async (req, res) => {
   let { password } = req.body;
-  const token = req.headers['jwt']
+  const salt = bcrypt.genSaltSync(10);
+  const hashPassword = bcrypt.hashSync(password, salt);
+  const token = req.headers["jwt"];
   const user = req.user;
   try {
-    user.password = password;
+    user.password = hashPassword;
     await user.save();
     res.status(200).json({ token, ...user });
   } catch (err) {
@@ -253,7 +261,7 @@ export const findNearbyUsers = async (req, res) => {
       _id: { $ne: user._id },
       longitude: { $ne: null },
       latitude: { $ne: null },
-      hideLocation: {$ne: true},
+      hideLocation: { $ne: true },
     });
     res.status(200).json(nearbyUsers);
   } catch (err) {
@@ -265,8 +273,11 @@ export const updatePassword = async (req, res) => {
   const user = req.user;
   let { oldPassword, newPassword } = req.body;
   try {
-    if (oldPassword == user.password) {
-      user.password = newPassword;
+    const auth = bcrypt.compare(oldPassword, user.password);
+    if (auth) {
+      const salt = bcrypt.genSaltSync(10);
+      const hashPassword = bcrypt.hashSync(newPassword, salt);
+      user.password = hashPassword;
       await user.save();
       res.status(200).json(user);
     } else {
@@ -414,10 +425,12 @@ export const getAllPosts = async (req, res) => {
   }
 };
 
-const getUsersChattedWith = async (req)=>{
+const getUsersChattedWith = async (req) => {
   const username = req.user.username;
   let listOfUsernames = [];
-  const messages = await Message.find({ $or: [{ from: username }, { to: username }] });
+  const messages = await Message.find({
+    $or: [{ from: username }, { to: username }],
+  });
   const usersChattedWith = messages.map((message) => {
     if (message.from == username) {
       listOfUsernames.push(message.to);
@@ -426,15 +439,14 @@ const getUsersChattedWith = async (req)=>{
     }
   });
   return listOfUsernames;
-}
+};
 
 export const getAllUsers = async (req, res) => {
   let usersChattedWith = await getUsersChattedWith(req);
   try {
     const users = await User.find({ username: { $in: usersChattedWith } });
     res.status(200).json(users);
-  }
-  catch (err) {
+  } catch (err) {
     res.status(400).json({ message: err.message });
   }
 };
@@ -479,7 +491,6 @@ export const saveMessage = async (payload) => {
     const message = new Message(payload);
     await message.save();
   } catch (error) {
-
     return false;
   }
 };
