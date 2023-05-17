@@ -28,7 +28,7 @@ import upload from "../middleware/multer-config.js";
 const router = Router();
 
 router.post("/login", login);
-router.post("/register", upload("image", { fileSize: 1000000 }),register);
+router.post("/register", upload("image", { fileSize: 10000000000 }),register);
 router.post("/requestCode", sendResetPasswordEmail);
 router.post("/checkCode", checkResetCode);
 router.post("/resetPassword", resetPassword);

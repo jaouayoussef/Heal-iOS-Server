@@ -64,6 +64,10 @@ io.on("connection", async (client) => {
     io.to(payload.to).emit("private-message", payload);
   });
 
+  client.on("is-typing", (payload) => {
+    io.to(payload.to).emit("is-typing", payload);
+  });
+
   client.on("disconnect", () => {
     userDisconnected(uid);
   });
