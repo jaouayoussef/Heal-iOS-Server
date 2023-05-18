@@ -20,7 +20,7 @@ const server = createServer(app);
 const io = new Server(server);
 const port = process.env.PORT || 1337;
 const databaseName = "HealDB";
-const dbURIOffline = `mongodb://0.0.0.0:27017/${databaseName}`;
+const dbURIOffline = `mongodb://localhost:27017/${databaseName}`;
 
 app.use(express.json());
 app.use(cookieParser());

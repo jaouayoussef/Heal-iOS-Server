@@ -1,0 +1,26 @@
+version: '3'
+services:
+  node:
+    build: .
+    environment:
+      - MONGO_URL=mongodb://mongo
+    ports:
+      - 1337:1337
+    volumes:
+      - ./:/code
+    networks: 
+      - heal
+    depends_on:
+      - mongo
+  mongo:
+    image: mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb:/data/db
+    networks: 
+      - heal
+volumes:
+ mongodb:
+networks: 
+  heal:
