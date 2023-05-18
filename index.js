@@ -3,6 +3,10 @@ import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import cors from "cors";
+
+import swaggerUi from "swagger-ui-express";
+import swaggerDocument from "./swagger.json" assert { type: "json" };
+
 import { createServer } from "http";
 import { Server } from "socket.io";
 
@@ -27,6 +31,11 @@ app.use(cookieParser());
 app.use(cors());
 app.use(morgan("dev"));
 app.use("/img", express.static("public/images"));
+app.use(
+  '/api-docs',
+  swaggerUi.serve, 
+  swaggerUi.setup(swaggerDocument)
+);
 
 mongoose.set("debug", true);
 mongoose.Promise = global.Promise;
